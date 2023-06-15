@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: sherlock-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: first-microservice
+          uri: lb://first-microservice
+          predicates:
+            - Path=/first/**
+eureka:
+  client:
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER_ADDRESS}

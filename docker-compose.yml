@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  discovery:
+    container_name: sherlock_discovery
+    build:
+      context: ./sherlock-discovery
+    networks:
+      - sherlocknet
+    ports:
+      - 8761:8761
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://discovery:8761/eureka/
+    restart: unless-stopped
+  gateway:
+    container_name: sherlock_gateway
+    build:
+      context: ./sherlock-gateway
+    depends_on:
+      - discovery
+    networks:
+      - sherlocknet
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://discovery:8761/eureka/
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+  first-ms:
+    build:
+      context: ./first-microservice
+    depends_on:
+      - discovery
+    networks:
+      - sherlocknet
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://discovery:8761/eureka/
+    restart: unless-stopped
+    deploy:
+      mode: replicated
+      replicas: 3
+  sherlock-identity:
+    container_name: sherlock_identity
+    build:
+      context: ./sherlock-identity
+    depends_on:
+      - discovery
+    networks:
+      - sherlocknet
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://discovery:8761/eureka/
+    restart: unless-stopped
+
+networks:
+  sherlocknet:
+    driver: bridge

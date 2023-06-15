@@ -1,0 +1,17 @@
+server:
+  port: 8761
+
+spring:
+  application:
+    name: sherlock-discovery
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER_ADDRESS}
+  server:
+    waitTimeInMsWhenSyncEmpty: 0
+  instance:
+    prefer-ip-address: true
