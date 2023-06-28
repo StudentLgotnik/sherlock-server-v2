@@ -1,18 +1,35 @@
 server:
-  port: 8080
+  port: 8081
 
 spring:
   application:
     name: sherlock-gateway
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
       routes:
+        - id: sherlock-identity-id
+          uri: lb://sherlock-identity
+          predicates:
+            - Path=/api/v1/account/**, /api/v1/token/**
         - id: first-microservice
           uri: lb://first-microservice
           predicates:
             - Path=/first/**
+          filters:
+            - TokenFilter
 eureka:
   client:
     registerWithEureka: true
     serviceUrl:
       defaultZone: ${EUREKA_SERVER_ADDRESS}
+  instance:
+    hostname: ${EUREKA_HOSTNAME}
+
+management:
+  endpoint:
+    env:
+      post:
+        enabled: true

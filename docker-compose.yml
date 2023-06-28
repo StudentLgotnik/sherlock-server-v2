@@ -7,8 +7,6 @@ services:
       context: ./sherlock-discovery
     networks:
       - sherlocknet
-    ports:
-      - 8761:8761
     environment:
       - EUREKA_SERVER_ADDRESS=http://discovery:8761/eureka/
     restart: unless-stopped
@@ -22,8 +20,9 @@ services:
       - sherlocknet
     environment:
       - EUREKA_SERVER_ADDRESS=http://discovery:8761/eureka/
+      - EUREKA_HOSTNAME=discovery
     ports:
-      - 8080:8080
+      - 8081:8081
     restart: unless-stopped
   first-ms:
     build:
@@ -34,20 +33,38 @@ services:
       - sherlocknet
     environment:
       - EUREKA_SERVER_ADDRESS=http://discovery:8761/eureka/
+      - ISSUER_URI=http://keycloak:8080/auth/realms/my_realm
     restart: unless-stopped
-    deploy:
-      mode: replicated
-      replicas: 3
+#    deploy:
+#      mode: replicated
+#      replicas: 3
+  sherlock-db:
+    container_name: sherlock_db
+    image: postgres
+    networks:
+      - sherlocknet
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: sherlock
+    restart: unless-stopped
   sherlock-identity:
     container_name: sherlock_identity
     build:
       context: ./sherlock-identity
     depends_on:
+      - sherlock-db
       - discovery
     networks:
       - sherlocknet
     environment:
+      - DATABASE_URL=jdbc:postgresql://sherlock_db:5432/sherlock
+      - DATABASE_USERNAME=root
+      - DATABASE_PASSWORD=admin
+      - DRIVER_CLASS_NAME=org.postgresql.Driver
+      - JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
       - EUREKA_SERVER_ADDRESS=http://discovery:8761/eureka/
+      - JWT_SECRET=sdg234ashg65ksagc0[349tu2y93y4
     restart: unless-stopped
 
 networks:
