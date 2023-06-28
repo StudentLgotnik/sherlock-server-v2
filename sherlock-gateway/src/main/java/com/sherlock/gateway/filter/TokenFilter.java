@@ -1,6 +1,6 @@
 package com.sherlock.gateway.filter;
 
-import com.sherlock.gateway.dto.UserDto;
+import com.sherlock.gateway.dto.UserDetailsDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -23,7 +23,7 @@ public class TokenFilter extends AbstractGatewayFilterFactory<TokenFilter.Config
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             if (!exchange.getRequest().getCookies().containsKey("jwtToken")) {
-                chain.filter(exchange);
+                return chain.filter(exchange);
             }
 
             String authToken = exchange.getRequest().getCookies().get("jwtToken").get(0).getValue();
@@ -32,11 +32,11 @@ public class TokenFilter extends AbstractGatewayFilterFactory<TokenFilter.Config
                     .get()
                     .uri("http://sherlock-identity/api/v1/token/validate")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + authToken)
-                    .retrieve().bodyToMono(UserDto.class)
-                    .map(userDto -> {
+                    .retrieve().bodyToMono(UserDetailsDto.class)
+                    .map(user -> {
                         exchange.getRequest()
                                 .mutate()
-                                .header("x-auth-id", userDto.getUuid());
+                                .header("x-auth-id", user.getUuid());
                         return exchange;
                     }).flatMap(chain::filter);
         };

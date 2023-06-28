@@ -20,6 +20,7 @@ spring:
             - Path=/first/**
           filters:
             - TokenFilter
+            - CredentialFilter
 eureka:
   client:
     registerWithEureka: true
