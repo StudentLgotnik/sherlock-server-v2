@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS sherlock_schema.users (
     password VARCHAR(255) NOT NULL,
     nickname VARCHAR(255),
     firstname VARCHAR(255),
-    lastname VARCHAR(255)
+    lastname VARCHAR(255),
+    oidc_id VARCHAR(255)
     );

@@ -5,7 +5,9 @@ import com.sherlock.identity.persistance.entity.User;
 public interface JwtService {
     String generateToken(User user);
 
-    User validate(String token);
+    boolean isValid(String token);
+
+    User toUser(String token);
 
     String getClaim(String token, Claim claim);
 }

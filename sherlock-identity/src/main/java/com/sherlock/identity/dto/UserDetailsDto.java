@@ -23,6 +23,7 @@ public class UserDetailsDto {
     private String nickname;
     private String firstname;
     private String lastname;
+    private String oidcId;
 
     public static UserDetailsDto fromUser(User user) {
         return UserDetailsDto.builder()
@@ -31,6 +32,7 @@ public class UserDetailsDto {
                 .nickname(user.getNickname())
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
+                .oidcId(user.getOidcId())
                 .build();
     }
 }

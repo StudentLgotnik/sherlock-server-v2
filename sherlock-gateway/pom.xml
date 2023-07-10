@@ -35,6 +35,18 @@
             <artifactId>spring-boot-starter-oauth2-client</artifactId>
             <version>${spring.boot.starter.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+            <version>${spring.boot.starter.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>${auth0.jwt.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

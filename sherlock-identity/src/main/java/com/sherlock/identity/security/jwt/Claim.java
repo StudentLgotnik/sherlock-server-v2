@@ -6,9 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Claim {
-    USER_UUID("identity_id"),
     USER_EMAIL("email"),
-    NICKNAME("sub"),
+    NICKNAME("name"),
     USER_FIRSTNAME("given_name"),
     USER_LASTNAME("family_name");
 

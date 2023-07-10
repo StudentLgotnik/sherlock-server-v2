@@ -14,11 +14,14 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
 @Component
 public class DefaultJwtService implements JwtService {
+
+    private static final String ISSUER = "sherlock.identity.com";
 
     @Value("${jwt.secret}")
     private String secret;
@@ -34,26 +37,49 @@ public class DefaultJwtService implements JwtService {
         Date now = new Date();
         Date validity = new Date(now.getTime() + Duration.ofDays(1).toMillis());
         return JWT.create()
-                .withClaim(Claim.USER_UUID.getClaimKey(), user.getUuid().toString())
+                .withSubject(user.getUuid().toString())
                 .withClaim(Claim.USER_EMAIL.getClaimKey(), user.getEmail())
                 .withClaim(Claim.USER_FIRSTNAME.getClaimKey(), user.getFirstname())
                 .withClaim(Claim.USER_LASTNAME.getClaimKey(), user.getLastname())
-                .withSubject(user.getNickname())
+                .withClaim(Claim.NICKNAME.getClaimKey(), user.getNickname())
+                .withIssuer(ISSUER)
                 .withIssuedAt(now)
                 .withExpiresAt(validity)
                 .sign(getAlgorithm());
     }
 
     @Override
-    public User validate(String token) {
-        DecodedJWT decoded = getDecodedJwt(token);
-        return User.builder()
-                .uuid(UUID.fromString(decoded.getClaim(Claim.USER_UUID.getClaimKey()).asString()))
-                .email(decoded.getClaim(Claim.USER_EMAIL.getClaimKey()).asString())
-                .firstname(decoded.getClaim(Claim.USER_FIRSTNAME.getClaimKey()).asString())
-                .lastname(decoded.getClaim(Claim.USER_LASTNAME.getClaimKey()).asString())
-                .nickname(decoded.getSubject())
-                .build();
+    public boolean isValid(String token) {
+        try {
+            DecodedJWT decoded = getDecodedJwt(token);
+            return Objects.nonNull(decoded);
+        } catch (JWTVerificationException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public User toUser(String token) {
+        DecodedJWT decoded = JWT.decode(token);
+        return decorateWithId(
+                User.builder()
+                        .email(decoded.getClaim(Claim.USER_EMAIL.getClaimKey()).asString())
+                        .nickname(decoded.getClaim(Claim.NICKNAME.getClaimKey()).asString())
+                        .firstname(decoded.getClaim(Claim.USER_FIRSTNAME.getClaimKey()).asString())
+                        .lastname(decoded.getClaim(Claim.USER_LASTNAME.getClaimKey()).asString())
+                        .build(),
+                decoded.getSubject()
+        );
+    }
+
+    private User decorateWithId(User user, String subjectId) {
+        try {
+            user.setUuid(UUID.fromString(subjectId));
+            return user;
+        } catch (IllegalArgumentException e) {
+            user.setOidcId(subjectId);
+            return user;
+        }
     }
 
     @Override

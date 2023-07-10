@@ -21,6 +21,8 @@ services:
     environment:
       - EUREKA_SERVER_ADDRESS=http://discovery:8761/eureka/
       - EUREKA_HOSTNAME=discovery
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     ports:
       - 8081:8081
     restart: unless-stopped

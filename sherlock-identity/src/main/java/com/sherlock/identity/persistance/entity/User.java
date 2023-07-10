@@ -33,5 +33,6 @@ public class User {
     private String lastname;
     @ToString.Exclude
     private String password;
+    private String oidcId;
 
 }
